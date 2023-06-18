@@ -58,7 +58,7 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
     private int animationFrame;
     private int animationDelay = 10; // Delay between animation frames
     private int timeLeft; // Remaining time in seconds
-    private static final int GAME_DURATION = 10000; // Game duration in seconds
+    private static final int GAME_DURATION = 60000; // Game duration in seconds
 
     //COINS
     public ArrayList<Coin> coins;
