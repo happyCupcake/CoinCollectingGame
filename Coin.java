@@ -5,14 +5,14 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class Coin {
-    private int x; // X-coordinate of the coin
-    private int y; // Y-coordinate of the coin
+    private int tileX; // X-coordinate of the coin
+    private int tileY; // Y-coordinate of the coin
     private boolean collected; // Whether the coin has been collected
     private BufferedImage coinImage; // Image of the coin
 
     public Coin(int x, int y) {
-        this.x = x;
-        this.y = y;
+        this.tileX = x;
+        this.tileY = y;
         this.collected = false;
 
     // Load the coin image from the resources folder
@@ -24,12 +24,16 @@ public class Coin {
         
     }
 
-    public int getX() {
-        return x;
+    public int getTileX() {
+        return tileX;
     }
 
-    public int getY() {
-        return y;
+    public int getTileY() {
+        return tileY;
+    }
+
+    public BufferedImage getCoinImage() {
+        return coinImage;
     }
 
     public boolean isCollected() {
@@ -41,6 +45,6 @@ public class Coin {
     }
 
     public void draw(Graphics2D g2d) {
-        g2d.drawImage(coinImage, x, y, null);
+        g2d.drawImage(coinImage, tileX, tileY, null);
     }
 }

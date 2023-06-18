@@ -54,10 +54,16 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
     public final int worldWidth = tileSize * maxWorldCol;
     public final int worldHeight = tileSize * maxWorldRow;
 
+    //Timer and Animation
     private int animationFrame;
     private int animationDelay = 10; // Delay between animation frames
+    private int timeLeft; // Remaining time in seconds
+    private static final int GAME_DURATION = 10000; // Game duration in seconds
 
-    private ArrayList<Coin> coins;
+    //COINS
+    public ArrayList<Coin> coins;
+    private int coinsHeld;
+
 
     public CoinCollectingGame() {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -78,8 +84,8 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
         solidArea.x = tileSize/6;
         solidArea.y = tileSize/3;
         //size of the blocked "solid" area on the character
-        solidArea.width = (tileSize*5)/12;
-        solidArea.height = (tileSize*5)/12;
+        solidArea.width = (tileSize*6)/12;
+        solidArea.height = (tileSize*7)/12;
 
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
@@ -126,7 +132,7 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
         setSize(scaledWidth, scaledHeight);
 
         // Load the map from a file
-        gameMap.loadMap();
+        gameMap.loadMap1();
 
         // Set up the game panel
         GamePanel gamePanel = new GamePanel();
@@ -140,33 +146,120 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
         Timer timer = new Timer(DELAY, this);
         timer.start();
 
+        //Time Left
+        timeLeft = GAME_DURATION;
+
         setVisible(true);
+
+        //add coins
+        addCoin(10, 9); // Add a coin at tile position (2, 3)
+        addCoin(13, 25); // Add a coin at tile position (4, 1)
+        addCoin(17, 29);
+        addCoin(11, 41);
+        addCoin(10, 32);
+        addCoin(16, 9); 
+        addCoin(25, 25);
+        addCoin(14, 14);
+
     }
 
+    public void addCoin(int tileX, int tileY) {
+        Coin coin = new Coin(tileX, tileY);
+        coins.add(coin);
+    }    
+
+    private boolean checkCollision(int x, int y) {
+        // Calculate the bounds of the player's solid area at the potential new position
+        int solidAreaX = x + solidAreaDefaultX;
+        int solidAreaY = y + solidAreaDefaultY;
+        int solidAreaWidth = solidArea.width;
+        int solidAreaHeight = solidArea.height;
+    
+        // Convert the player's solid area bounds to map tile coordinates
+        int startX = solidAreaX / tileSize;
+        int startY = solidAreaY / tileSize;
+        int endX = (solidAreaX + solidAreaWidth) / tileSize;
+        int endY = (solidAreaY + solidAreaHeight) / tileSize;
+    
+        // Iterate over the map tiles within the player's solid area
+        for (int row = startY; row <= endY; row++) {
+            for (int col = startX; col <= endX; col++) {
+                if (gameMap.isTileBlocked(row, col)) {
+                    // Collision detected with a blocked tile
+                    return true;
+                }
+            }
+        }
+    
+        // No collision detected
+        return false;
+    }
+    
     private void updateGame() {
-        // Update game logic here
+        // UPDATE GAME LOGIC HERE
+    
+        // Update the timer
+        timeLeft-=16;
+
+        // Check if the timer has run out
+        if (timeLeft <= 0) {
+            // Timer has run out, close the game
+            JOptionPane.showMessageDialog(this, "Time's up!");
+            //timeLeft = GAME_DURATION;
+            System.exit(0);
+
+            //gameMap.loadMap2();
+            
+        }
+
+        // Calculate the potential new position of the player
+        int newPlayerWorldX = playerWorldX;
+        int newPlayerWorldY = playerWorldY;
         if (upKeyPressed) {
-            playerWorldY -= speed;
+            newPlayerWorldY -= speed;
         }
         if (downKeyPressed) {
-            playerWorldY += speed;
+            newPlayerWorldY += speed;
         }
         if (leftKeyPressed) {
-            playerWorldX -= speed;
+            newPlayerWorldX -= speed;
         }
         if (rightKeyPressed) {
-            playerWorldX += speed;
+            newPlayerWorldX += speed;
         }
+    
+        // Check for collision with the game map
+        if (checkCollision(newPlayerWorldX, newPlayerWorldY)) {
+            // Collision detected, do not update player position
+            return;
+        }
+    
+        // Check for collision with coins
+        for (Coin coin : coins) {
+            if (!coin.isCollected() && coin.getTileX() == playerWorldX / tileSize && coin.getTileY() == playerWorldY / tileSize) {
+                // Coin collision detected
+                coin.setCollected(true);
+                // Increment the coinsHeld counter
+                coinsHeld++;
+            }
+        }
+    
+        // Update player position if no collision
+        playerWorldX = newPlayerWorldX;
+        playerWorldY = newPlayerWorldY;
+    
         if (spaceKeyPressed) {
             // Handle shooting
         }
-
+    
         // Update animation frame
         animationFrame++;
         if (animationFrame >= animationDelay) {
             animationFrame = 0;
         }
     }
+    
+    
 
     private void selectImage() {
         if (upKeyPressed) {
@@ -201,6 +294,8 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
     }
 
     private class GamePanel extends JPanel {
+        private String gameText;
+
         public Dimension getPreferredSize() {
             int scaledWidth = (int) (WIDTH * scaleFactor * tileScaleFactor);
             int scaledHeight = (int) (HEIGHT * scaleFactor * tileScaleFactor);
@@ -209,10 +304,23 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
 
         @Override
         protected void paintComponent(Graphics g) {
+
+            gameText= "Number of keys collected: " + coinsHeld;
+
             super.paintComponent(g);
             Graphics2D g2d = (Graphics2D) g;
             g2d.scale(scaleFactor * tileScaleFactor, scaleFactor * tileScaleFactor);
             renderGame(g2d);
+
+            //TEXT
+            g2d.setColor(Color.WHITE);
+            g2d.setFont(new Font("Trattatello Regular", Font.BOLD, 20));
+            int textX = 50;
+            int textY = 50;
+            g2d.drawString(gameText, textX, textY);
+            g2d.drawString("Time Left: " + timeLeft/1000, 100, 100);
+
+            g2d.dispose();
         }
     }
 
