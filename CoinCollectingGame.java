@@ -120,8 +120,8 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
         // Set up map
         tileSize = 48;
 
-        playerWorldX = tileSize * 21;
-        playerWorldY = tileSize * 23;
+        playerWorldX = tileSize * 25;
+        playerWorldY = tileSize * 21;
 
         // tileWidth = 48;
         gameMap = new Map(this);
@@ -314,7 +314,7 @@ public class CoinCollectingGame extends JFrame implements KeyListener, ActionLis
 
             //TEXT
             g2d.setColor(Color.WHITE);
-            g2d.setFont(new Font("Trattatello Regular", Font.BOLD, 20));
+            g2d.setFont(new Font("Trattatello", Font.BOLD, 30));
             int textX = 50;
             int textY = 50;
             g2d.drawString(gameText, textX, textY);

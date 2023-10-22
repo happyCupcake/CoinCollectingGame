@@ -55,7 +55,7 @@ public class Map {
 
     public void loadMap1(){
         try{
-            InputStream is = getClass().getResourceAsStream("maps/map1.txt");
+            InputStream is = getClass().getResourceAsStream("maps/map3.txt");
             BufferedReader br = new BufferedReader(new InputStreamReader(is));
 
             int row = 0;
